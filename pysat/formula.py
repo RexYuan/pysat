@@ -2430,3 +2430,122 @@ class WCNFPlus(WCNF, object):
         wcnfplus.__class__ = WCNFPlus  # casting it to WCNF+
 
         return wcnfplus
+
+
+#
+#==============================================================================
+class BF(object):
+    """
+        Parent class of all boolean formula.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> v(1) & ~v(2) > c(False)
+            Implies(And(Var(1),Not(Var(2))),Const(False))
+    """
+    def __invert__(self):
+        return Not(self)
+
+    def __and__(self, other):
+        if type(self) is And and type(other) is And:
+            return And(*self.children, *other.children)
+        elif type(self) is And:
+            return And(*self.children, other)
+        else:
+            return And(self, other)
+
+    def __or__(self, other):
+        if type(self) is Or and type(other) is Or:
+            return Or(*self.children, *other.children)
+        elif type(self) is Or:
+            return Or(*self.children, other)
+        else:
+            return Or(self, other)
+
+    def __gt__(self, other):
+        return Implies(self, other)
+
+class AtomicBF(BF):
+    """
+        Parent class of all base boolean formula.
+    """
+    def __init__(self, content):
+        self.content = content
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({repr(self.content)})"
+
+class UnaryBF(BF):
+    """
+        Parent class of all boolean formula with single arity.
+    """
+    def __init__(self, input):
+        assert issubclass(type(input), BF)
+
+        self.child = input
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({repr(self.child)})"
+
+    def __str__(self):
+        if issubclass(type(self.child), AtomicBF):
+            return f"{self.symbol}{self.child}"
+        else:
+            return f"{self.symbol}({self.child})"
+
+class MultaryBF(BF):
+    """
+        Parent class of all boolean formula with variable arity.
+    """
+    def __init__(self, *inputs):
+        assert all(issubclass(type(input), BF) for input in inputs)
+
+        self.children = list(inputs)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({','.join(repr(child) for child in self.children)})"
+
+    def __str__(self):
+        return f" {self.symbol} ".join(map(str, self.children))
+
+class BinaryBF(MultaryBF):
+    """
+        Parent class of all boolean formula with two arity.
+    """
+    def __init__(self, lhs_input, rhs_input):
+        assert issubclass(type(lhs_input), BF) and issubclass(type(rhs_input), BF)
+
+        self.children = [lhs_input, rhs_input]
+
+class Const(AtomicBF):
+    def __init__(self, content):
+        assert type(content) is bool
+
+        self.content = content
+
+    def __str__(self):
+        return f"{self.content}"
+
+class Var(AtomicBF):
+    def __init__(self, content):
+        assert type(content) is int
+
+        self.content = content
+
+    def __str__(self):
+        return f"x{self.content}"
+
+class Not(UnaryBF):
+    symbol = '~'
+
+class And(MultaryBF):
+    symbol = '&'
+
+class Or(MultaryBF):
+    symbol = '|'
+
+class Implies(BinaryBF):
+    symbol = '>'
