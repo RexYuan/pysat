@@ -2507,6 +2507,18 @@ class BF(object):
         """
         return Implies(self, other)
 
+    def __eq__(self, other):
+        """
+            Equality. The operator '=='.
+        """
+        return Equals(self, other)
+
+    def __ne__(self, other):
+        """
+            Inequality. The operator '!='.
+        """
+        return NotEquals(self, other)
+
 class AtomicBF(BF):
     """
         Parent class of all base boolean formula.
@@ -2588,3 +2600,9 @@ class Or(MultaryBF):
 
 class Implies(BinaryBF):
     symbol = '>'
+
+class Equals(BinaryBF):
+    symbol = '=='
+
+class NotEquals(BinaryBF):
+    symbol = '!='
