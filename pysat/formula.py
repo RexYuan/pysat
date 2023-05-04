@@ -2447,9 +2447,15 @@ class BF(object):
             Implies(And(Var(1),Not(Var(2))),Const(False))
     """
     def __invert__(self):
+        """
+            Negation. The operator '~'.
+        """
         return Not(self)
 
     def __and__(self, other):
+        """
+            Conjunction. The operator '&'.
+        """
         if type(self) is And and type(other) is And:
             return And(*self.children, *other.children)
         elif type(self) is And:
@@ -2458,6 +2464,9 @@ class BF(object):
             return And(self, other)
 
     def __or__(self, other):
+        """
+            Disjunction. The operator '|'.
+        """
         if type(self) is Or and type(other) is Or:
             return Or(*self.children, *other.children)
         elif type(self) is Or:
@@ -2466,6 +2475,9 @@ class BF(object):
             return Or(self, other)
 
     def __gt__(self, other):
+        """
+            Implication. The operator '>'.
+        """
         return Implies(self, other)
 
 class AtomicBF(BF):
