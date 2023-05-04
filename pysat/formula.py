@@ -2434,6 +2434,9 @@ class WCNFPlus(WCNF, object):
 
 #
 #==============================================================================
+class BFException(Exception):
+    pass
+
 class BF(object):
     """
         Parent class of all boolean formula.
@@ -2463,6 +2466,18 @@ class BF(object):
         else:
             return And(self, other)
 
+    def __iand__(self, other):
+        """
+            In-place conjunction. The operator '&='.
+        """
+        if type(self) is And and type(other) is And:
+            self.children.extend(other.children)
+        elif type(self) is And and issubclass(type(other), BF):
+            self.children.append(other)
+        else:
+            raise BFException
+        return self
+
     def __or__(self, other):
         """
             Disjunction. The operator '|'.
@@ -2473,6 +2488,18 @@ class BF(object):
             return Or(*self.children, other)
         else:
             return Or(self, other)
+
+    def __ior__(self, other):
+        """
+            In-place disjunction. The operator '|='.
+        """
+        if type(self) is Or and type(other) is Or:
+            self.children.extend(other.children)
+        elif type(self) is Or and issubclass(type(other), BF):
+            self.children.append(other)
+        else:
+            raise BFException
+        return self
 
     def __gt__(self, other):
         """
