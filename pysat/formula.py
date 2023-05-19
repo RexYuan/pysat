@@ -2597,6 +2597,11 @@ class BinaryBF(MultaryBF):
         self.children = [lhs_input, rhs_input]
 
 class Const(AtomicBF):
+    """
+        Logical constants. There are only two logical constants,
+        verum and falsum, or :math:`1` and :math:`0`
+        , denoted as :math:`\\top` and :math:`\\bot`.
+    """
     def __init__(self, content):
         assert type(content) is bool
 
@@ -2606,6 +2611,10 @@ class Const(AtomicBF):
         return f"{self.content}"
 
 class Var(AtomicBF):
+    """
+        Propositional variables. They are numbered by :math:`\mathbb{N}`,
+        denoted as :math:`x_{1},x_{2},x_{3},\\ldots`.
+    """
     def __init__(self, content):
         assert type(content) is int
 
