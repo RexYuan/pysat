@@ -2624,19 +2624,43 @@ class Var(AtomicBF):
         return f"x{self.content}"
 
 class Not(UnaryBF):
+    """
+        Logical negation. A unary symbol, denoted as :math:`\\neg`.
+    """
     symbol = '~'
 
 class And(MultaryBF):
+    """
+        Logical conjunction. An :math:`n`-ary symbol,
+        , denoted as :math:`\\bigwedge`; in particular,
+        it is :math:`\\top` when :math:`n = 0` and the unary identity
+        when :math:`n = 1`.
+    """
     symbol = '&'
 
 class Or(MultaryBF):
+    """
+        Logical disjunction. An :math:`n`-ary symbol
+        , denoted as :math:`\\bigvee`; in particular,
+        it is :math:`\\bot` when :math:`n = 0` and the unary identity
+        when :math:`n = 1`.
+    """
     symbol = '|'
 
 class Implies(BinaryBF):
+    """
+        Logical implication. A binary symbol, denoted as :math:`\\implies`.
+    """
     symbol = '>'
 
 class Equals(BinaryBF):
+    """
+        Logical biconditional. A binary symbol, denoted as :math:`\\Longleftrightarrow`.
+    """
     symbol = '=='
 
 class NotEquals(BinaryBF):
+    """
+        Logical exclusive disjunction. A binary symbol, denoted as :math:`\\oplus`.
+    """
     symbol = '!='
