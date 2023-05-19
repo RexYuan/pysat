@@ -2439,7 +2439,13 @@ class BFException(Exception):
 
 class BF(object):
     """
-        Parent class of all boolean formula.
+        Parent class of all boolean formulas.
+
+        The syntax rules of boolean formulas are as follows:
+
+        - :class:`Var` and :class:`Const` are formulas.
+        - if `a` is a formula, then `~a` is a formula.
+        - if `a`, `b` are formulas, then `a & b`, `a | b`, and `a > b` are formulas.
 
         Example:
 
@@ -2601,6 +2607,16 @@ class Const(AtomicBF):
         verum and falsum [2]_, or truth and falsity,
         or tautology and contradiction, or :math:`1` and :math:`0`
         , denoted as :math:`\\top` and :math:`\\bot`.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> c(True)
+            Const(True)
+            >>> c(False)
+            Const(False)
     """
     def __init__(self, content):
         assert type(content) is bool
@@ -2614,6 +2630,14 @@ class Var(AtomicBF):
     """
         Propositional variables. They are numbered by :math:`\mathbb{N}`,
         denoted as :math:`x_{1},x_{2},x_{3},\\ldots`.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> v(1)
+            Var(1)
     """
     def __init__(self, content):
         assert type(content) is int
@@ -2626,6 +2650,16 @@ class Var(AtomicBF):
 class Not(UnaryBF):
     """
         Logical negation. A unary symbol, denoted as :math:`\\neg`.
+
+        It can be constructed with the operator `~`.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> ~v(1)
+            Not(Var(1))
     """
     symbol = '~'
 
@@ -2635,6 +2669,16 @@ class And(MultaryBF):
         , denoted as :math:`\\bigwedge`; in particular,
         it is :math:`\\top` when :math:`n = 0` and the unary identity
         when :math:`n = 1`.
+
+        It can be constructed with the operator `&`.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> v(1) & v(2) & v(3)
+            And(Var(1),Var(2),Var(3))
     """
     symbol = '&'
 
@@ -2644,23 +2688,63 @@ class Or(MultaryBF):
         , denoted as :math:`\\bigvee`; in particular,
         it is :math:`\\bot` when :math:`n = 0` and the unary identity
         when :math:`n = 1`.
+
+        It can be constructed with the operator `|`.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> v(1) | v(2) | v(3)
+            Or(Var(1),Var(2),Var(3))
     """
     symbol = '|'
 
 class Implies(BinaryBF):
     """
         Logical implication. A binary symbol, denoted as :math:`\\implies`.
+
+        It can be constructed with the operator `>`.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> v(1) > v(2)
+            Implies(Var(1),Var(2))
     """
     symbol = '>'
 
 class Equals(BinaryBF):
     """
         Logical biconditional. A binary symbol, denoted as :math:`\\Longleftrightarrow`.
+
+        It can be constructed with the operator `==`.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> v(1) == v(2)
+            Equals(Var(1),Var(2))
     """
     symbol = '=='
 
 class NotEquals(BinaryBF):
     """
         Logical exclusive disjunction. A binary symbol, denoted as :math:`\\oplus`.
+
+        It can be constructed with the operator `!=`.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> v(1) != v(2)
+            NotEquals(Var(1),Var(2))
     """
     symbol = '!='
