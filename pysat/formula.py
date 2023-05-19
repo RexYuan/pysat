@@ -2679,6 +2679,18 @@ class And(MultaryBF):
             >>> from pysat.formula import Var as v, Const as c
             >>> v(1) & v(2) & v(3)
             And(Var(1),Var(2),Var(3))
+
+        There is also an in-place operator `&=`.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> p = v(1) & v(2)
+            >>> p &= v(3)
+            >>> p
+            And(Var(1),Var(2),Var(3))
     """
     symbol = '&'
 
@@ -2697,6 +2709,18 @@ class Or(MultaryBF):
 
             >>> from pysat.formula import Var as v, Const as c
             >>> v(1) | v(2) | v(3)
+            Or(Var(1),Var(2),Var(3))
+
+        There is also an in-place operator `|=`.
+
+        Example:
+
+        .. code-block:: python
+
+            >>> from pysat.formula import Var as v, Const as c
+            >>> p = v(1) | v(2)
+            >>> p |= v(3)
+            >>> p
             Or(Var(1),Var(2),Var(3))
     """
     symbol = '|'
