@@ -2521,7 +2521,13 @@ class BF(object):
 
 class AtomicBF(BF):
     """
-        Parent class of all base boolean formula.
+        Parent class of all atomic boolean formulas. Atomic formulas,
+        or prime formulas, are formulas consisting
+        of only propositional variables or truth constants [2]_; that is,
+        :math:`x_{1},x_{2},x_{3},\\ldots` and :math:`\\top` and :math:`\\bot`
+        are atomic fomulas.
+
+        .. [2] W. Rautenberg. *A concise introduction to mathematical logic*, 3rd edition. Universitext, Springer New York, 2010.
     """
     def __init__(self, content):
         self.content = content
@@ -2531,7 +2537,11 @@ class AtomicBF(BF):
 
 class UnaryBF(BF):
     """
-        Parent class of all boolean formula with single arity.
+        Parent class of all unary boolean formulas.
+        Unary formulas are made up of logical symbols of arity :math:`1`.
+        For example, the negation symbol :math:`\\neg`;
+        if :math:`\\phi` is a formula, then all the formulas
+        of the form :math:`\\neg\\phi` are unary formulas.
     """
     def __init__(self, input):
         assert issubclass(type(input), BF)
@@ -2549,7 +2559,15 @@ class UnaryBF(BF):
 
 class MultaryBF(BF):
     """
-        Parent class of all boolean formula with variable arity.
+        Parent class of all multary boolean formulas.
+        Multary formulas are made up of logical symbols of arity :math:`n`
+        where :math:`n \\gt 1`.
+        For example, the multary conjunction and disjunction symbols,
+        :math:`\\bigwedge` and :math:`\\bigvee`;
+        if :math:`\\phi_{i},\\psi_{i}` for all
+        :math:`i=1,2,\\ldots,n` are formulas, then all the formulas
+        of the form :math:`\\bigwedge_{i=1,2,\\ldots,n} \\phi_{i}`
+        and :math:`\\bigvee_{i=1,2,\\ldots,n} \\psi_{i}` are :math:`n`-ary formulas.
     """
     def __init__(self, *inputs):
         assert all(issubclass(type(input), BF) for input in inputs)
@@ -2564,7 +2582,14 @@ class MultaryBF(BF):
 
 class BinaryBF(MultaryBF):
     """
-        Parent class of all boolean formula with two arity.
+        Parent class of all binary boolean formulas.
+        Binary formulas are a specialization of multary formulas
+        where they are made up of logical symbols of arity :math:`n = 2`.
+        For example, the binary conjunction and disjunction symbols,
+        :math:`\\wedge` and :math:`\\vee`;
+        if :math:`\\phi,\\psi` are formulas, then all the formulas
+        of the form :math:`\\phi \\wedge \\psi`
+        and :math:`\\phi \\vee \\psi` are binary formulas.
     """
     def __init__(self, lhs_input, rhs_input):
         assert issubclass(type(lhs_input), BF) and issubclass(type(rhs_input), BF)
