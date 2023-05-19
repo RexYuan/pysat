@@ -2522,7 +2522,7 @@ class BF(object):
 class AtomicBF(BF):
     """
         Parent class of all atomic boolean formulas. Atomic formulas,
-        or prime formulas, are formulas consisting
+        or prime formulas, are zeroary formulas consisting
         of only propositional variables or truth constants [2]_; that is,
         :math:`x_{1},x_{2},x_{3},\\ldots` and :math:`\\top` and :math:`\\bot`
         are atomic fomulas.
@@ -2538,7 +2538,7 @@ class AtomicBF(BF):
 class UnaryBF(BF):
     """
         Parent class of all unary boolean formulas.
-        Unary formulas are made up of logical symbols of arity :math:`1`.
+        Unary formulas are made up of logical symbols of arity :math:`1` [2]_.
         For example, the negation symbol :math:`\\neg`;
         if :math:`\\phi` is a formula, then all the formulas
         of the form :math:`\\neg\\phi` are unary formulas.
@@ -2560,8 +2560,7 @@ class UnaryBF(BF):
 class MultaryBF(BF):
     """
         Parent class of all multary boolean formulas.
-        Multary formulas are made up of logical symbols of arity :math:`n`
-        where :math:`n \\gt 1`.
+        Multary formulas are made up of logical symbols of arity :math:`n \\geq 0`.
         For example, the multary conjunction and disjunction symbols,
         :math:`\\bigwedge` and :math:`\\bigvee`;
         if :math:`\\phi_{i},\\psi_{i}` for all
@@ -2584,7 +2583,7 @@ class BinaryBF(MultaryBF):
     """
         Parent class of all binary boolean formulas.
         Binary formulas are a specialization of multary formulas
-        where they are made up of logical symbols of arity :math:`n = 2`.
+        where they are made up of logical symbols of arity :math:`n = 2` [2]_.
         For example, the binary conjunction and disjunction symbols,
         :math:`\\wedge` and :math:`\\vee`;
         if :math:`\\phi,\\psi` are formulas, then all the formulas
@@ -2599,7 +2598,8 @@ class BinaryBF(MultaryBF):
 class Const(AtomicBF):
     """
         Logical constants. There are only two logical constants,
-        verum and falsum, or :math:`1` and :math:`0`
+        verum and falsum [2]_, or truth and falsity,
+        or tautology and contradiction, or :math:`1` and :math:`0`
         , denoted as :math:`\\top` and :math:`\\bot`.
     """
     def __init__(self, content):
