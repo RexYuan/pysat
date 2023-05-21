@@ -2438,6 +2438,9 @@ class WCNFPlus(WCNF, object):
 class BFException(Exception):
     pass
 
+default_pool = IDPool()
+default_true = default_pool.id('true')
+
 class BF(abc.ABC):
     """
         Parent class of all boolean formulas.
@@ -2565,9 +2568,11 @@ class UnaryBF(CompositeBF, abc.ABC):
         if :math:`\\phi` is a formula, then all the formulas
         of the form :math:`\\neg\\phi` are unary formulas.
     """
-    def __init__(self, input):
+    def __init__(self, input, pool=default_pool):
         assert issubclass(type(input), BF)
+        assert type(pool) is IDPool
 
+        self.pool = pool
         self.child = input
 
     def __repr__(self):
@@ -2590,9 +2595,11 @@ class MultaryBF(CompositeBF, abc.ABC):
         of the form :math:`\\bigwedge_{i=1,2,\\ldots,n} \\phi_{i}`
         and :math:`\\bigvee_{i=1,2,\\ldots,n} \\psi_{i}` are :math:`n`-ary formulas.
     """
-    def __init__(self, *inputs):
+    def __init__(self, *inputs, pool=default_pool):
         assert all(issubclass(type(input), BF) for input in inputs)
+        assert type(pool) is IDPool
 
+        self.pool = pool
         self.children = list(inputs)
 
     def __repr__(self):
@@ -2612,9 +2619,11 @@ class BinaryBF(MultaryBF, abc.ABC):
         of the form :math:`\\phi \\wedge \\psi`
         and :math:`\\phi \\vee \\psi` are binary formulas.
     """
-    def __init__(self, lhs_input, rhs_input):
+    def __init__(self, lhs_input, rhs_input, pool=default_pool):
         assert issubclass(type(lhs_input), BF) and issubclass(type(rhs_input), BF)
+        assert type(pool) is IDPool
 
+        self.pool = pool
         self.children = [lhs_input, rhs_input]
 
 class Const(AtomicBF):
@@ -2634,10 +2643,13 @@ class Const(AtomicBF):
             >>> c(False)
             Const(False)
     """
-    def __init__(self, content):
+    def __init__(self, content, pool=default_pool, id=default_true):
         assert type(content) is bool
+        assert type(pool) is IDPool and type(id) is int
 
+        self.pool = pool
         self.content = content
+        self.id = id if content else -id
 
     def __str__(self):
         return f"{self.content}"
@@ -2655,13 +2667,32 @@ class Var(AtomicBF):
             >>> v(1)
             Var(1)
     """
-    def __init__(self, content):
-        assert type(content) is int
+    def __init__(self, content, pool=default_pool):
+        assert type(content) is int or type(content) is str
+        assert type(pool) is IDPool
 
-        self.content = content
+        self.pool = pool
+        self.content_is_str = False
+        if type(content) is int:
+            self.content = content
+        else:
+            self.content_is_str = True
+            self.content = self.pool.id(content)
+        while self.content > self.pool.top:
+            self.pool.id()
 
     def __str__(self):
-        return f"x{self.content}"
+        if self.content == self.pool.id('true'):
+            if self.content > 0:
+                return f"True"
+            elif self.content < 0:
+                return f"False"
+            else:
+                raise BFException
+        if self.content_is_str:
+            return f"x_{self.pool.obj(self.content)}"
+        else:
+            return f"x{self.content}"
 
 class Not(UnaryBF):
     """
