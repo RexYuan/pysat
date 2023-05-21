@@ -2547,7 +2547,17 @@ class AtomicBF(BF, abc.ABC):
     def __repr__(self):
         return f"{self.__class__.__name__}({repr(self.content)})"
 
-class UnaryBF(BF, abc.ABC):
+class CompositeBF(BF, abc.ABC):
+    """
+        Parent class of all non-atomic boolean formulas.
+        Non-atomic formulas involve connective symbols:
+        :math:`\\neg`, :math:`\\wedge`, etc.
+    """
+    @abc.abstractmethod
+    def symbol():
+        pass
+
+class UnaryBF(CompositeBF, abc.ABC):
     """
         Parent class of all unary boolean formulas.
         Unary formulas are made up of logical symbols of arity :math:`1` [2]_.
@@ -2569,11 +2579,7 @@ class UnaryBF(BF, abc.ABC):
         else:
             return f"{self.symbol()}({self.child})"
 
-    @abc.abstractmethod
-    def symbol():
-        pass
-
-class MultaryBF(BF, abc.ABC):
+class MultaryBF(CompositeBF, abc.ABC):
     """
         Parent class of all multary boolean formulas.
         Multary formulas are made up of logical symbols of arity :math:`n \\geq 0`.
@@ -2595,10 +2601,6 @@ class MultaryBF(BF, abc.ABC):
     def __str__(self):
         return f" {self.symbol()} ".join(map(str, self.children))
 
-    @abc.abstractmethod
-    def symbol():
-        pass
-
 class BinaryBF(MultaryBF, abc.ABC):
     """
         Parent class of all binary boolean formulas.
@@ -2614,10 +2616,6 @@ class BinaryBF(MultaryBF, abc.ABC):
         assert issubclass(type(lhs_input), BF) and issubclass(type(rhs_input), BF)
 
         self.children = [lhs_input, rhs_input]
-
-    @abc.abstractmethod
-    def symbol():
-        pass
 
 class Const(AtomicBF):
     """
