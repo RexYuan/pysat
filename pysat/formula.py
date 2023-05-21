@@ -2679,7 +2679,9 @@ class Not(UnaryBF):
             >>> ~v(1)
             Not(Var(1))
     """
-    symbol = '~'
+    @staticmethod
+    def symbol():
+        return '~'
 
 class And(MultaryBF):
     """
@@ -2710,7 +2712,9 @@ class And(MultaryBF):
             >>> p
             And(Var(1),Var(2),Var(3))
     """
-    symbol = '&'
+    @staticmethod
+    def symbol():
+        return '&'
 
 class Or(MultaryBF):
     """
@@ -2741,7 +2745,9 @@ class Or(MultaryBF):
             >>> p
             Or(Var(1),Var(2),Var(3))
     """
-    symbol = '|'
+    @staticmethod
+    def symbol():
+        return '|'
 
 class Implies(BinaryBF):
     """
@@ -2757,7 +2763,9 @@ class Implies(BinaryBF):
             >>> v(1) > v(2)
             Implies(Var(1),Var(2))
     """
-    symbol = '>'
+    @staticmethod
+    def symbol():
+        return '>'
 
 class Equals(BinaryBF):
     """
@@ -2773,7 +2781,9 @@ class Equals(BinaryBF):
             >>> v(1) == v(2)
             Equals(Var(1),Var(2))
     """
-    symbol = '=='
+    @staticmethod
+    def symbol():
+        return '=='
 
 class NotEquals(BinaryBF):
     """
@@ -2789,4 +2799,6 @@ class NotEquals(BinaryBF):
             >>> v(1) != v(2)
             NotEquals(Var(1),Var(2))
     """
-    symbol = '!='
+    @staticmethod
+    def symbol():
+        return '!='
