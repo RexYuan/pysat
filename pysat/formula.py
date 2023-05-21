@@ -214,6 +214,7 @@
 #
 #==============================================================================
 from __future__ import print_function
+import abc
 import collections
 import copy
 import decimal
@@ -2437,7 +2438,7 @@ class WCNFPlus(WCNF, object):
 class BFException(Exception):
     pass
 
-class BF(object):
+class BF(abc.ABC):
     """
         Parent class of all boolean formulas.
 
@@ -2455,6 +2456,10 @@ class BF(object):
             >>> v(1) & ~v(2) > c(False)
             Implies(And(Var(1),Not(Var(2))),Const(False))
     """
+    @abc.abstractmethod
+    def __init__():
+        pass
+
     def __invert__(self):
         """
             Negation. The operator '~'.
@@ -2525,7 +2530,7 @@ class BF(object):
         """
         return NotEquals(self, other)
 
-class AtomicBF(BF):
+class AtomicBF(BF, abc.ABC):
     """
         Parent class of all atomic boolean formulas. Atomic formulas,
         or prime formulas, are zeroary formulas consisting
@@ -2535,13 +2540,14 @@ class AtomicBF(BF):
 
         .. [2] W. Rautenberg. *A concise introduction to mathematical logic*, 3rd edition. Universitext, Springer New York, 2010.
     """
-    def __init__(self, content):
-        self.content = content
+    @abc.abstractmethod
+    def __init__():
+        pass
 
     def __repr__(self):
         return f"{self.__class__.__name__}({repr(self.content)})"
 
-class UnaryBF(BF):
+class UnaryBF(BF, abc.ABC):
     """
         Parent class of all unary boolean formulas.
         Unary formulas are made up of logical symbols of arity :math:`1` [2]_.
@@ -2559,11 +2565,15 @@ class UnaryBF(BF):
 
     def __str__(self):
         if issubclass(type(self.child), AtomicBF):
-            return f"{self.symbol}{self.child}"
+            return f"{self.symbol()}{self.child}"
         else:
-            return f"{self.symbol}({self.child})"
+            return f"{self.symbol()}({self.child})"
 
-class MultaryBF(BF):
+    @abc.abstractmethod
+    def symbol():
+        pass
+
+class MultaryBF(BF, abc.ABC):
     """
         Parent class of all multary boolean formulas.
         Multary formulas are made up of logical symbols of arity :math:`n \\geq 0`.
@@ -2583,9 +2593,13 @@ class MultaryBF(BF):
         return f"{self.__class__.__name__}({','.join(repr(child) for child in self.children)})"
 
     def __str__(self):
-        return f" {self.symbol} ".join(map(str, self.children))
+        return f" {self.symbol()} ".join(map(str, self.children))
 
-class BinaryBF(MultaryBF):
+    @abc.abstractmethod
+    def symbol():
+        pass
+
+class BinaryBF(MultaryBF, abc.ABC):
     """
         Parent class of all binary boolean formulas.
         Binary formulas are a specialization of multary formulas
@@ -2600,6 +2614,10 @@ class BinaryBF(MultaryBF):
         assert issubclass(type(lhs_input), BF) and issubclass(type(rhs_input), BF)
 
         self.children = [lhs_input, rhs_input]
+
+    @abc.abstractmethod
+    def symbol():
+        pass
 
 class Const(AtomicBF):
     """
