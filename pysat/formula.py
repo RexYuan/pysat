@@ -2533,6 +2533,12 @@ class BF(abc.ABC):
         """
         return NotEquals(self, other)
 
+    def to_CNF(self):
+        v, c = self.tseitin()
+        cnf = CNF(from_clauses=c)
+        cnf.append([v])
+        return cnf
+
 class AtomicBF(BF, abc.ABC):
     """
         Parent class of all atomic boolean formulas. Atomic formulas,
@@ -2654,6 +2660,9 @@ class Const(AtomicBF):
     def __str__(self):
         return f"{self.content}"
 
+    def tseitin(self):
+        return self.id, []
+
 class Var(AtomicBF):
     """
         Propositional variables. They are numbered by :math:`\mathbb{N}`,
@@ -2694,6 +2703,9 @@ class Var(AtomicBF):
         else:
             return f"x{self.content}"
 
+    def tseitin(self):
+        return self.content, []
+
 class Not(UnaryBF):
     """
         Logical negation. A unary symbol, denoted as :math:`\\neg`.
@@ -2711,6 +2723,13 @@ class Not(UnaryBF):
     @staticmethod
     def symbol():
         return '~'
+
+    def tseitin(self):
+        fresh = self.pool.id()
+        sub, clauses = self.child.tseitin()
+        clauses.append([fresh, sub])   # fresh < ~sub
+        clauses.append([-fresh, -sub]) # fresh > ~sub
+        return fresh, clauses
 
 class And(MultaryBF):
     """
@@ -2745,6 +2764,18 @@ class And(MultaryBF):
     def symbol():
         return '&'
 
+    def tseitin(self):
+        fresh = self.pool.id()
+        c = [fresh] # fresh < (sub & sub & ...)
+        clauses = []
+        for child in self.children:
+            sub, cs = child.tseitin()
+            clauses += cs
+            clauses.append([-fresh, sub]) # fresh > (sub & sub & ...)
+            c.append(-sub)
+        clauses.append(c)
+        return fresh, clauses
+
 class Or(MultaryBF):
     """
         Logical disjunction. An :math:`n`-ary symbol
@@ -2778,6 +2809,18 @@ class Or(MultaryBF):
     def symbol():
         return '|'
 
+    def tseitin(self):
+        fresh = self.pool.id()
+        c = [-fresh] # fresh > (sub | sub | ...)
+        clauses = []
+        for child in self.children:
+            sub, cs = child.tseitin()
+            clauses += cs
+            clauses.append([fresh, -sub]) # fresh < (sub | sub | ...)
+            c.append(sub)
+        clauses.append(c)
+        return fresh, clauses
+
 class Implies(BinaryBF):
     """
         Logical implication. A binary symbol, denoted as :math:`\\implies`.
@@ -2795,6 +2838,18 @@ class Implies(BinaryBF):
     @staticmethod
     def symbol():
         return '>'
+
+    def tseitin(self):
+        fresh = self.pool.id()
+        clauses = []
+        sub_lhs, cs_lhs = self.children[0].tseitin()
+        sub_rhs, cs_rhs = self.children[1].tseitin()
+        clauses += cs_lhs
+        clauses += cs_rhs
+        clauses.append([fresh, sub_lhs])  # fresh < (sub_lhs > sub_rhs)
+        clauses.append([fresh, -sub_rhs]) # fresh < (sub_lhs > sub_rhs)
+        clauses.append([-fresh, -sub_lhs, sub_rhs]) # fresh > (sub_lhs > sub_rhs)
+        return fresh, clauses
 
 class Equals(BinaryBF):
     """
@@ -2814,6 +2869,19 @@ class Equals(BinaryBF):
     def symbol():
         return '=='
 
+    def tseitin(self):
+        fresh = self.pool.id()
+        clauses = []
+        sub_lhs, cs_lhs = self.children[0].tseitin()
+        sub_rhs, cs_rhs = self.children[1].tseitin()
+        clauses += cs_lhs
+        clauses += cs_rhs
+        clauses.append([fresh, -sub_lhs, -sub_rhs]) # fresh < (sub_lhs == sub_rhs)
+        clauses.append([fresh, sub_lhs, sub_rhs])   # fresh < (sub_lhs == sub_rhs)
+        clauses.append([-fresh, -sub_lhs, sub_rhs]) # fresh > (sub_lhs == sub_rhs)
+        clauses.append([-fresh, sub_lhs, -sub_rhs]) # fresh > (sub_lhs == sub_rhs)
+        return fresh, clauses
+
 class NotEquals(BinaryBF):
     """
         Logical exclusive disjunction. A binary symbol, denoted as :math:`\\oplus`.
@@ -2831,3 +2899,16 @@ class NotEquals(BinaryBF):
     @staticmethod
     def symbol():
         return '!='
+
+    def tseitin(self):
+        fresh = self.pool.id()
+        clauses = []
+        sub_lhs, cs_lhs = self.children[0].tseitin()
+        sub_rhs, cs_rhs = self.children[1].tseitin()
+        clauses += cs_lhs
+        clauses += cs_rhs
+        clauses.append([fresh, -sub_lhs, sub_rhs]) # fresh < (sub_lhs != sub_rhs)
+        clauses.append([fresh, sub_lhs, -sub_rhs]) # fresh < (sub_lhs != sub_rhs)
+        clauses.append([-fresh, -sub_lhs, -sub_rhs]) # fresh > (sub_lhs != sub_rhs)
+        clauses.append([-fresh, sub_lhs, sub_rhs])   # fresh > (sub_lhs != sub_rhs)
+        return fresh, clauses
