@@ -171,8 +171,8 @@ pysolvers_ext = Extension('pysolvers',
 # finally, calling standard setuptools.setup() (or distutils.core.setup())
 #==============================================================================
 setup(name='python-sat',
-    packages=['pysat', 'pysat.examples', 'pysat.allies'],
-    package_dir={'pysat.examples': 'examples', 'pysat.allies': 'allies'},
+    packages=['pysat', 'pysat.examples', 'pysat.allies', 'pysat.formula'],
+    package_dir={'pysat.examples': 'examples', 'pysat.allies': 'allies', 'pysat.formula': 'formula'},
     version=__version__,
     description='A Python library for prototyping with SAT oracles',
     long_description=LONG_DESCRIPTION,
