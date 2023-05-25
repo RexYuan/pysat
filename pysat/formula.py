@@ -518,7 +518,7 @@ class Formula(abc.ABC):
         cnf.append([v])
         return cnf
 
-class NormalFormula(Formula, abc.ABC):
+class NormalFormula(Formula):
     """
         Parent class of all normal form formulas. When a boolean operation
         is applied to a :class:`NormalFormula` object and a non-:class:`NormalFormula`
@@ -550,9 +550,11 @@ class NormalFormula(Formula, abc.ABC):
             >>> cnf1.clauses
             [[-1, 2], [3], [2], [-3]]
     """
-    pass
+    @abc.abstractmethod
+    def __init__():
+        pass
 
-class AtomicFormula(Formula, abc.ABC):
+class AtomicFormula(Formula):
     """
         Parent class of all atomic boolean formulas. Atomic formulas,
         or prime formulas, are zeroary formulas consisting
@@ -569,7 +571,7 @@ class AtomicFormula(Formula, abc.ABC):
     def __repr__(self):
         return f"{self.__class__.__name__}({repr(self.content)})"
 
-class CompositeFormula(Formula, abc.ABC):
+class CompositeFormula(Formula):
     """
         Parent class of all non-atomic boolean formulas.
         Non-atomic formulas involve connective symbols:
@@ -579,7 +581,7 @@ class CompositeFormula(Formula, abc.ABC):
     def symbol():
         pass
 
-class UnaryFormula(CompositeFormula, abc.ABC):
+class UnaryFormula(CompositeFormula):
     """
         Parent class of all unary boolean formulas.
         Unary formulas are made up of logical symbols of arity :math:`1` [2]_.
@@ -603,7 +605,7 @@ class UnaryFormula(CompositeFormula, abc.ABC):
         else:
             return f"{self.symbol()}({self.child})"
 
-class MultaryFormula(CompositeFormula, abc.ABC):
+class MultaryFormula(CompositeFormula):
     """
         Parent class of all multary boolean formulas.
         Multary formulas are made up of logical symbols of arity :math:`n \\geq 0`.
@@ -627,7 +629,7 @@ class MultaryFormula(CompositeFormula, abc.ABC):
     def __str__(self):
         return f" {self.symbol()} ".join(map(str, self.children))
 
-class BinaryFormula(MultaryFormula, abc.ABC):
+class BinaryFormula(MultaryFormula):
     """
         Parent class of all binary boolean formulas.
         Binary formulas are a specialization of multary formulas
