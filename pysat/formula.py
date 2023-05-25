@@ -2435,13 +2435,13 @@ class WCNFPlus(WCNF, object):
 
 #
 #==============================================================================
-class BFException(Exception):
+class FormulaException(Exception):
     pass
 
 default_pool = IDPool()
 default_true = default_pool.id('true')
 
-class BF(abc.ABC):
+class Formula(abc.ABC):
     """
         Parent class of all boolean formulas.
 
@@ -2486,10 +2486,10 @@ class BF(abc.ABC):
         """
         if type(self) is And and type(other) is And:
             self.children.extend(other.children)
-        elif type(self) is And and issubclass(type(other), BF):
+        elif type(self) is And and issubclass(type(other), Formula):
             self.children.append(other)
         else:
-            raise BFException
+            raise FormulaException
         return self
 
     def __or__(self, other):
@@ -2509,10 +2509,10 @@ class BF(abc.ABC):
         """
         if type(self) is Or and type(other) is Or:
             self.children.extend(other.children)
-        elif type(self) is Or and issubclass(type(other), BF):
+        elif type(self) is Or and issubclass(type(other), Formula):
             self.children.append(other)
         else:
-            raise BFException
+            raise FormulaException
         return self
 
     def __gt__(self, other):
@@ -2539,7 +2539,7 @@ class BF(abc.ABC):
         cnf.append([v])
         return cnf
 
-class AtomicBF(BF, abc.ABC):
+class AtomicFormula(Formula, abc.ABC):
     """
         Parent class of all atomic boolean formulas. Atomic formulas,
         or prime formulas, are zeroary formulas consisting
@@ -2556,7 +2556,7 @@ class AtomicBF(BF, abc.ABC):
     def __repr__(self):
         return f"{self.__class__.__name__}({repr(self.content)})"
 
-class CompositeBF(BF, abc.ABC):
+class CompositeFormula(Formula, abc.ABC):
     """
         Parent class of all non-atomic boolean formulas.
         Non-atomic formulas involve connective symbols:
@@ -2566,7 +2566,7 @@ class CompositeBF(BF, abc.ABC):
     def symbol():
         pass
 
-class UnaryBF(CompositeBF, abc.ABC):
+class UnaryFormula(CompositeFormula, abc.ABC):
     """
         Parent class of all unary boolean formulas.
         Unary formulas are made up of logical symbols of arity :math:`1` [2]_.
@@ -2575,7 +2575,7 @@ class UnaryBF(CompositeBF, abc.ABC):
         of the form :math:`\\neg\\phi` are unary formulas.
     """
     def __init__(self, input, pool=default_pool):
-        assert issubclass(type(input), BF)
+        assert issubclass(type(input), Formula)
         assert type(pool) is IDPool
 
         self.pool = pool
@@ -2585,12 +2585,12 @@ class UnaryBF(CompositeBF, abc.ABC):
         return f"{self.__class__.__name__}({repr(self.child)})"
 
     def __str__(self):
-        if issubclass(type(self.child), AtomicBF):
+        if issubclass(type(self.child), AtomicFormula):
             return f"{self.symbol()}{self.child}"
         else:
             return f"{self.symbol()}({self.child})"
 
-class MultaryBF(CompositeBF, abc.ABC):
+class MultaryFormula(CompositeFormula, abc.ABC):
     """
         Parent class of all multary boolean formulas.
         Multary formulas are made up of logical symbols of arity :math:`n \\geq 0`.
@@ -2602,7 +2602,7 @@ class MultaryBF(CompositeBF, abc.ABC):
         and :math:`\\bigvee_{i=1,2,\\ldots,n} \\psi_{i}` are :math:`n`-ary formulas.
     """
     def __init__(self, *inputs, pool=default_pool):
-        assert all(issubclass(type(input), BF) for input in inputs)
+        assert all(issubclass(type(input), Formula) for input in inputs)
         assert type(pool) is IDPool
 
         self.pool = pool
@@ -2614,7 +2614,7 @@ class MultaryBF(CompositeBF, abc.ABC):
     def __str__(self):
         return f" {self.symbol()} ".join(map(str, self.children))
 
-class BinaryBF(MultaryBF, abc.ABC):
+class BinaryFormula(MultaryFormula, abc.ABC):
     """
         Parent class of all binary boolean formulas.
         Binary formulas are a specialization of multary formulas
@@ -2626,13 +2626,13 @@ class BinaryBF(MultaryBF, abc.ABC):
         and :math:`\\phi \\vee \\psi` are binary formulas.
     """
     def __init__(self, lhs_input, rhs_input, pool=default_pool):
-        assert issubclass(type(lhs_input), BF) and issubclass(type(rhs_input), BF)
+        assert issubclass(type(lhs_input), Formula) and issubclass(type(rhs_input), Formula)
         assert type(pool) is IDPool
 
         self.pool = pool
         self.children = [lhs_input, rhs_input]
 
-class Const(AtomicBF):
+class Const(AtomicFormula):
     """
         Logical constants. There are only two logical constants,
         verum and falsum [2]_, or truth and falsity,
@@ -2663,7 +2663,7 @@ class Const(AtomicBF):
     def tseitin(self):
         return self.id, []
 
-class Var(AtomicBF):
+class Var(AtomicFormula):
     """
         Propositional variables. They are numbered by :math:`\mathbb{N}`,
         denoted as :math:`x_{1},x_{2},x_{3},\\ldots`.
@@ -2697,7 +2697,7 @@ class Var(AtomicBF):
             elif self.content < 0:
                 return f"False"
             else:
-                raise BFException
+                raise FormulaException
         if self.content_is_str:
             return f"x_{self.pool.obj(self.content)}"
         else:
@@ -2706,7 +2706,7 @@ class Var(AtomicBF):
     def tseitin(self):
         return self.content, []
 
-class Not(UnaryBF):
+class Not(UnaryFormula):
     """
         Logical negation. A unary symbol, denoted as :math:`\\neg`.
 
@@ -2731,7 +2731,7 @@ class Not(UnaryBF):
         clauses.append([-fresh, -sub]) # fresh > ~sub
         return fresh, clauses
 
-class And(MultaryBF):
+class And(MultaryFormula):
     """
         Logical conjunction. An :math:`n`-ary symbol,
         , denoted as :math:`\\bigwedge`; in particular,
@@ -2776,7 +2776,7 @@ class And(MultaryBF):
         clauses.append(c)
         return fresh, clauses
 
-class Or(MultaryBF):
+class Or(MultaryFormula):
     """
         Logical disjunction. An :math:`n`-ary symbol
         , denoted as :math:`\\bigvee`; in particular,
@@ -2821,7 +2821,7 @@ class Or(MultaryBF):
         clauses.append(c)
         return fresh, clauses
 
-class Implies(BinaryBF):
+class Implies(BinaryFormula):
     """
         Logical implication. A binary symbol, denoted as :math:`\\implies`.
 
@@ -2851,7 +2851,7 @@ class Implies(BinaryBF):
         clauses.append([-fresh, -sub_lhs, sub_rhs]) # fresh > (sub_lhs > sub_rhs)
         return fresh, clauses
 
-class Equals(BinaryBF):
+class Equals(BinaryFormula):
     """
         Logical biconditional. A binary symbol, denoted as :math:`\\Longleftrightarrow`.
 
@@ -2882,7 +2882,7 @@ class Equals(BinaryBF):
         clauses.append([-fresh, sub_lhs, -sub_rhs]) # fresh > (sub_lhs == sub_rhs)
         return fresh, clauses
 
-class NotEquals(BinaryBF):
+class NotEquals(BinaryFormula):
     """
         Logical exclusive disjunction. A binary symbol, denoted as :math:`\\oplus`.
 
