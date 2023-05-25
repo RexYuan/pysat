@@ -432,6 +432,8 @@ class Formula(abc.ABC):
         """
         if issubclass(type(self), NormalFormula):
             return And(self.to_Formula(), other).to_NormalFormula(type(self))
+        elif issubclass(type(other), NormalFormula):
+            return And(self, other.to_Formula()).to_NormalFormula(type(other))
         if type(self) is And and type(other) is And:
             return And(*self.children, *other.children)
         elif type(self) is And:
@@ -462,6 +464,8 @@ class Formula(abc.ABC):
         """
         if issubclass(type(self), NormalFormula):
             return Or(self.to_Formula(), other).to_NormalFormula(type(self))
+        elif issubclass(type(other), NormalFormula):
+            return Or(self, other.to_Formula()).to_NormalFormula(type(other))
         if type(self) is Or and type(other) is Or:
             return Or(*self.children, *other.children)
         elif type(self) is Or:
@@ -489,6 +493,8 @@ class Formula(abc.ABC):
         """
         if issubclass(type(self), NormalFormula):
             return Implies(self.to_Formula(), other).to_NormalFormula(type(self))
+        elif issubclass(type(other), NormalFormula):
+            return Implies(self, other.to_Formula()).to_NormalFormula(type(other))
         return Implies(self, other)
 
     def __eq__(self, other):
@@ -497,6 +503,8 @@ class Formula(abc.ABC):
         """
         if issubclass(type(self), NormalFormula):
             return Equals(self.to_Formula(), other).to_NormalFormula(type(self))
+        elif issubclass(type(other), NormalFormula):
+            return Equals(self, other.to_Formula()).to_NormalFormula(type(other))
         return Equals(self, other)
 
     def __ne__(self, other):
@@ -505,6 +513,8 @@ class Formula(abc.ABC):
         """
         if issubclass(type(self), NormalFormula):
             return NotEquals(self.to_Formula(), other).to_NormalFormula(type(self))
+        elif issubclass(type(other), NormalFormula):
+            return NotEquals(self, other.to_Formula()).to_NormalFormula(type(other))
         return NotEquals(self, other)
 
     def to_NormalFormula(self, cls):
