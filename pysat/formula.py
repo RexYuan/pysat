@@ -1359,7 +1359,7 @@ class CNF(NormalFormula):
             print('(check-sat)', file=file_pointer)
             print('(exit)', file=file_pointer)
 
-    def to_Formula(self):
+    def to_Formula(self, topv=None):
         """
             Return self as basic Formula.
 
@@ -1375,9 +1375,12 @@ class CNF(NormalFormula):
                 >>> cnf.to_Formula()
                 And(Or(Var(-1),Var(2)),Or(Var(3)))
         """
-        conjuncts = And()
+        if not topv:
+            topv = max(max(c) for c in self)+2
+        pool = IDPool(start_from=topv)
+        conjuncts = And(pool=pool)
         for clause in self:
-            disjunct = Or()
+            disjunct = Or(pool=pool)
             for variable in clause:
                 disjunct |= Var(variable)
             conjuncts &= disjunct
